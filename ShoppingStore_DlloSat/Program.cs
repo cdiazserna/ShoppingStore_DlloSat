@@ -9,6 +9,9 @@ builder.Services.AddControllersWithViews();
 //Con esta línea ya puedo crear mi BD y usar la instcia de SQL que tengo aquí en mi VS
 builder.Services.AddDbContext<DataBaseContext>(o => o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+//Con esta línea de código, implemento la librería para hacer cambnios en caliente de HTML
+builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

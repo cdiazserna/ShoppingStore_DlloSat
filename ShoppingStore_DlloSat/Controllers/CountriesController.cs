@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using ShoppingStore_DlloSat.DAL;
 using ShoppingStore_DlloSat.DAL.Entities;
 
@@ -58,11 +59,21 @@ namespace ShoppingStore_DlloSat.Controllers
         {
             if (ModelState.IsValid)
             {
-                country.Id = Guid.NewGuid();
-                country.CreatedDate = DateTime.Now; //Aquí automatizo el CreatedDate de un objeto
-                _context.Add(country); //Método Add() es para crear en BD
-                await _context.SaveChangesAsync(); //aquí va a la capa MODEL y GUARDA el país en la tabla Countries
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    country.Id = Guid.NewGuid();
+                    country.CreatedDate = DateTime.Now; //Aquí automatizo el CreatedDate de un objeto
+                    _context.Add(country); //Método Add() es para crear en BD
+                    await _context.SaveChangesAsync(); //aquí va a la capa MODEL y GUARDA el país en la tabla Countries
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException ex)
+                {
+                    if (ex.InnerException.Message.Contains("duplicate"))
+                    {
+                        ModelState.AddModelError(string.Empty, "Ya existe un país con el mismo nombre");
+                    }
+                }
             }
             return View(country);
         }
@@ -104,6 +115,7 @@ namespace ShoppingStore_DlloSat.Controllers
 
                     _context.Update(country); //Método Update() es para actualizar ese objeto en BD
                     await _context.SaveChangesAsync(); //Aquí ya hago el update en BD
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -116,8 +128,15 @@ namespace ShoppingStore_DlloSat.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (DbUpdateException ex)
+                {
+                    if (ex.InnerException.Message.Contains("duplicate"))
+                    {
+                        ModelState.AddModelError(string.Empty, "Ya existe un país con el mismo nombre");
+                    }
+                }
             }
+
             return View(country);
         }
 
