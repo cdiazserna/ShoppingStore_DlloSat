@@ -16,15 +16,14 @@
             <partial name="../Shared/PartialViews/_CountryCreateEdit" />
 
             <div class="form-group">
-                <input type="submit" value="Crear del post" class="btn btn-primary" />
+                </br>
+                <input type="submit" value="Crear del post" class="btn btn-outline-primary" />
+                <a asp-action="Index" class="btn btn-outline-success">Regresar</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Regresar</a>
-</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
