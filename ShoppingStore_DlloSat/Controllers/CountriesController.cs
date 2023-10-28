@@ -23,6 +23,7 @@ namespace ShoppingStore_DlloSat.Controllers
         {
             var xsdfaf = await _context.Countries
                 .Include(c => c.States) //El Include me hace las veces del INNER JOIN
+                .ThenInclude(s => s.Cities)
                 .ToListAsync();
             return View(xsdfaf);
 
@@ -37,8 +38,8 @@ namespace ShoppingStore_DlloSat.Controllers
             }
 
             var country = await _context.Countries
-                .Include(c => c.States)
-                .ThenInclude(s => s.Cities)
+                .Include(c => c.States)       //Include -- Inner Join
+                .ThenInclude(s => s.Cities)   //ThenInclude -- Inner Join
                 .FirstOrDefaultAsync(c => c.Id == id);
             //El Método FirstOrDefaultAsync me sirve para consultar UN OBJETO
 
@@ -144,7 +145,10 @@ namespace ShoppingStore_DlloSat.Controllers
         {
             if (id == null || _context.Countries == null) return NotFound();
 
-            var country = await _context.Countries.FirstOrDefaultAsync(c => c.Id == id);
+            var country = await _context.Countries
+                .Include(c => c.States)
+                .ThenInclude(s => s.Cities)
+                .FirstOrDefaultAsync(c => c.Id == id);
 
             if (country == null) return NotFound();
 
@@ -159,7 +163,10 @@ namespace ShoppingStore_DlloSat.Controllers
             if (_context.Countries == null)
                 return Problem("Entity set 'DataBaseContext.Countries'  is null.");
 
-            var country = await _context.Countries.FindAsync(id);
+            var country = await _context.Countries
+                .Include(c => c.States)
+                .ThenInclude(s => s.Cities)
+                .FirstOrDefaultAsync(c => c.Id == id);
             if (country != null)
                 _context.Countries.Remove(country); //El método Remove() es para eliminar el país
 
