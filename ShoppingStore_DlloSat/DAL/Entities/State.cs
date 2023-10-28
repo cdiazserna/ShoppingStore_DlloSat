@@ -19,6 +19,6 @@ namespace ShoppingStore_DlloSat.DAL.Entities
 
         [Display(Name = "Ciudades")]
         //Esto es una popiedad de lectura que me sirve para contar las ciudades de un Estado
-        public int CityNumber => Cities == null ? 0 : Cities.Count; //Recuerden que esto es un if ternario
+        public int CitiesNumber => Cities == null ? 0 : Cities.Count; //Recuerden que esto es un if ternario
     }
 }
