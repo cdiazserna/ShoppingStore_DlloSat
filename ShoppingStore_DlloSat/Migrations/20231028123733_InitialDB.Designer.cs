@@ -12,8 +12,8 @@ using ShoppingStore_DlloSat.DAL;
 namespace ShoppingStore_DlloSat.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20231021171948_NewStateAndCityTables")]
-    partial class NewStateAndCityTables
+    [Migration("20231028123733_InitialDB")]
+    partial class InitialDB
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

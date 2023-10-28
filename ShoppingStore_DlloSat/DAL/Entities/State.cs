@@ -12,13 +12,13 @@ namespace ShoppingStore_DlloSat.DAL.Entities
         public string Name { get; set; }
 
         //Relación 1-N State a Country
-        public Country Country { get; set; }
+        public Country? Country { get; set; }
 
         //Relación con City
-        public ICollection<City> Cities { get; set; }
+        public ICollection<City>? Cities { get; set; }
 
         [Display(Name = "Ciudades")]
         //Esto es una popiedad de lectura que me sirve para contar las ciudades de un Estado
-        public int CityNumber => (Cities == null ? 0 : Cities.Count); //Recuerden que esto es un if ternario
+        public int CityNumber => Cities == null ? 0 : Cities.Count; //Recuerden que esto es un if ternario
     }
 }

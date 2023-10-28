@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
 using ShoppingStore_DlloSat.DAL;
 using ShoppingStore_DlloSat.DAL.Entities;
+using ShoppingStore_DlloSat.Models;
 
 namespace ShoppingStore_DlloSat.Controllers
 {
@@ -17,13 +17,15 @@ namespace ShoppingStore_DlloSat.Controllers
             _context = context;
         }
 
+        #region Acciones de Country
         // GET: Countries
         public async Task<IActionResult> Index() //MÉTODOS = ACTIONS DEL CONTROLADOR
         {
-            return _context.Countries != null ? View(await _context.Countries.ToListAsync()) : Problem("Entity set 'DataBaseContext.Countries'  is null.");
-            //IF TERNARIO, el famoso IF pero simplificado..... el signo ? significa ENTONCES...... el signo : significa SINO
+            var xsdfaf = await _context.Countries
+                .Include(c => c.States) //El Include me hace las veces del INNER JOIN
+                .ToListAsync();
+            return View(xsdfaf);
 
-            //El Método ToListAsync me sirve para consultar UNA LISTA
         }
 
         // GET: Countries/Details/5
@@ -34,7 +36,9 @@ namespace ShoppingStore_DlloSat.Controllers
                 return NotFound();
             }
 
-            var country = await _context.Countries.FirstOrDefaultAsync(c => c.Id == id);
+            var country = await _context.Countries.Include(c => c.States)
+                .ThenInclude(s => s.Cities)
+                .FirstOrDefaultAsync(c => c.Id == id);
             //El Método FirstOrDefaultAsync me sirve para consultar UN OBJETO
 
             if (country == null)
@@ -82,17 +86,11 @@ namespace ShoppingStore_DlloSat.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid? id)
         {
-            if (id == null || _context.Countries == null)
-            {
-                return NotFound();
-            }
+            if (id == null || _context.Countries == null) return NotFound();
 
             var country = await _context.Countries.FindAsync(id); //Aquí voy a la BD y me traigo ese país con ese ID    
 
-            if (country == null)
-            {
-                return NotFound();
-            }
+            if (country == null) return NotFound();
 
             return View(country);
         }
@@ -143,17 +141,11 @@ namespace ShoppingStore_DlloSat.Controllers
         // GET: Countries/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
-            if (id == null || _context.Countries == null)
-            {
-                return NotFound();
-            }
+            if (id == null || _context.Countries == null) return NotFound();
 
             var country = await _context.Countries.FirstOrDefaultAsync(c => c.Id == id);
-            
-            if (country == null)
-            {
-                return NotFound();
-            }
+
+            if (country == null) return NotFound();
 
             return View(country);
         }
@@ -164,15 +156,11 @@ namespace ShoppingStore_DlloSat.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             if (_context.Countries == null)
-            {
                 return Problem("Entity set 'DataBaseContext.Countries'  is null.");
-            }
 
             var country = await _context.Countries.FindAsync(id);
             if (country != null)
-            {
                 _context.Countries.Remove(country); //El método Remove() es para eliminar el país
-            }
 
             await _context.SaveChangesAsync(); //Elimino directamente el país en la BD
             return RedirectToAction(nameof(Index)); // Redireciono al index de País
@@ -182,5 +170,68 @@ namespace ShoppingStore_DlloSat.Controllers
         {
             return (_context.Countries?.Any(e => e.Id == id)).GetValueOrDefault();
         }
+
+        #endregion
+
+        #region Acciones de State
+
+        //AddState
+        [HttpGet]
+        public async Task<IActionResult> AddState(Guid? countryId)
+        {
+            if (countryId == null) return NotFound();
+
+            Country country = await _context.Countries.FirstOrDefaultAsync(c => c.Id == countryId);
+
+            if (country == null) return NotFound();
+
+            StateViewModel stateViewModel = new StateViewModel
+            {
+                CountryId = country.Id
+            };
+
+            return View(stateViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddState(StateViewModel stateViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    State state = new() //Este ya es la tabla State donde guardaré el estado/dpto en BD
+                    {
+                        Cities = new List<City>(),
+                        Country = await _context.Countries.FirstOrDefaultAsync(c => c.Id == stateViewModel.CountryId),
+                        Name = stateViewModel.Name,
+                        CreatedDate = DateTime.Now,
+                        ModifiedDate = null,
+                    };
+
+                    _context.Add(state);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Details), new { Id = stateViewModel.CountryId });
+                }
+                catch (DbUpdateException dbUpdateException)
+                {
+                    if (dbUpdateException.InnerException.Message.Contains("duplicate"))
+                        ModelState.AddModelError(string.Empty, "Ya existe un Dpto/Estado con el mismo nombre en este país.");
+                    else
+                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                }
+                catch (Exception exception)
+                {
+                    ModelState.AddModelError(string.Empty, exception.Message);
+                }
+            }
+            return View(stateViewModel);
+        }
+
+        #endregion
+
+        #region Acciones de City
+        #endregion
     }
 }

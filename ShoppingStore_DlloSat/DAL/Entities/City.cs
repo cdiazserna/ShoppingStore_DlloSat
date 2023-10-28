@@ -11,6 +11,6 @@ namespace ShoppingStore_DlloSat.DAL.Entities
         public string Name { get; set; }
 
         //Relación con State
-        public State State { get; set; }
+        public State? State { get; set; }
     }
 }

@@ -11,10 +11,10 @@ namespace ShoppingStore_DlloSat.DAL.Entities
         public string Name { get; set; }
 
         //Relación 1-N State a Country
-        public ICollection<State> States { get; set;}
+        public ICollection<State>? States { get; set;}
 
         [Display(Name = "Estados/Departamentos")]
         //Esto es una popiedad de lectura que me sirve para contar los estados de un país
-        public int StateNumber => (States == null ? 0 : States.Count); //Recuerden que esto es un if ternario
+        public int StateNumber => States == null ? 0 : States.Count; //Recuerden que esto es un if ternario
     }
 }
