@@ -237,6 +237,65 @@ namespace ShoppingStore_DlloSat.Controllers
             return View(stateViewModel);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> EditState(Guid? stateId)
+        {
+            if (stateId == null || _context.States == null) return NotFound();
+
+            State state = await _context.States
+                .Include(c => c.Country)
+                .FirstOrDefaultAsync(s => s.Id == stateId); //Select * from States 
+
+            if (state == null) return NotFound();
+
+            StateViewModel stateViewModel = new()
+            {
+                Id = state.Id,
+                CountryId = state.Country.Id,
+                Name = state.Name,
+                CreatedDate = state.CreatedDate,
+                ModifiedDate = state.ModifiedDate,
+            };
+
+            return View(stateViewModel);
+        }
+
+        // POST: Countries/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditState(Guid countryId, StateViewModel stateViewModel)
+        {
+            if (countryId != stateViewModel.CountryId) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    State state = new()
+                    {
+                        Id = stateViewModel.Id,
+                        Name = stateViewModel.Name,
+                        CreatedDate = stateViewModel.CreatedDate,
+                        ModifiedDate = DateTime.Now,
+                    };
+
+                    _context.Update(state);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Details), new { Id = stateViewModel.CountryId });
+                }
+                catch (DbUpdateException ex)
+                {
+                    if (ex.InnerException.Message.Contains("duplicate"))
+                    {
+                        ModelState.AddModelError(string.Empty, $"Ya existe un Estado/Dpto con el mismo nombre en este {stateViewModel.Country.Name}");
+                    }
+                }
+            }
+
+            return View(stateViewModel);
+        }
+
+
         #endregion
 
         #region Acciones de City

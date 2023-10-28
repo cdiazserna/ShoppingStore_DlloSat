@@ -1,0 +1,35 @@
+﻿@model ShoppingStore_DlloSat.Models.StateViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Editar</h1>
+
+<h4>Estado/Departament</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="EditState">
+            @*EditState es el post para hacer el update en la BD*@
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="CreatedDate" /> @*Esto me sirve para que los valores que no serán modificados, simplemente no se sobreescriban por un valor vácío*@
+            <input type="hidden" asp-for="CountryId" /> @*Esto me sirve para que los valores que no serán modificados, simplemente no se sobreescriban por un valor vácío*@
+
+            <partial name="../Shared/PartialViews/_StateCreateEdit" />
+            
+            <div class="form-group">
+                <input type="submit" value="Guardar" class="btn btn-outline-primary" />
+                <a asp-action="Details" asp-route-id="@Model?.CountryId" class="btn btn-outline-success">Regresar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
