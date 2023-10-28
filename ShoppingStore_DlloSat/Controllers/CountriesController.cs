@@ -36,7 +36,8 @@ namespace ShoppingStore_DlloSat.Controllers
                 return NotFound();
             }
 
-            var country = await _context.Countries.Include(c => c.States)
+            var country = await _context.Countries
+                .Include(c => c.States)
                 .ThenInclude(s => s.Cities)
                 .FirstOrDefaultAsync(c => c.Id == id);
             //El Método FirstOrDefaultAsync me sirve para consultar UN OBJETO
